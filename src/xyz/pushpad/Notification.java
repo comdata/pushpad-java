@@ -31,12 +31,15 @@ public class Notification {
     return this.deliver(this.reqBody(null, tags));
   }
 
-  public JSONObject deliverTo(String[] uids) throws DeliveryException {
-    return this.deliver(this.reqBody(uids, null));
+  public JSONObject deliverTo(String[] uids, String[] tags) throws DeliveryException {
+    if (uids == null) {
+      uids = new String[0]; // prevent broadcasting
+    }
+    return this.deliver(this.reqBody(uids, tags));
   }
 
-  public JSONObject deliverTo(String[] uids, String[] tags) throws DeliveryException {
-    return this.deliver(this.reqBody(uids, tags));
+  public JSONObject deliverTo(String[] uids) throws DeliveryException {
+    return this.deliverTo(uids, null);
   }
 
   public JSONObject deliverTo(String uid) throws DeliveryException {
@@ -96,7 +99,9 @@ public class Notification {
 
       // Send request
       DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
-      wr.writeBytes(reqBody);
+      BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(wr, "UTF-8"));
+      writer.write(reqBody);
+      writer.close();
       wr.close();
 
       // Get Response  
